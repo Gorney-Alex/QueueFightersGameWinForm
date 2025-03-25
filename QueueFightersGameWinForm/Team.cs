@@ -21,15 +21,44 @@ namespace QueueFightGame
 
         public void AddFighter(IUnit fighter)
         {
-            fighter.Team = this;
-            this.Money -= fighter.Cost;
-            QueueFighters.Enqueue(fighter);
-            Console.WriteLine($"Add {fighter.Name} to {this.TeamName}");
+            if (this.Money >= fighter.Cost)
+            {
+                fighter.Team = this;
+                this.Money -= fighter.Cost;
+                QueueFighters.Enqueue(fighter);
+                Console.WriteLine($"Add {fighter.Name} to {this.TeamName}");
+            }
+            else
+            {
+                Console.WriteLine($"{this.TeamName} don't have enough money to add {fighter.Name}");
+            }
         }
 
         public bool HasFighters()
         {
             return QueueFighters.Count > 0;
+        }
+
+        public void ShowTeam()
+        {
+            Console.WriteLine($"\n--- Команда: {TeamName} ---");
+            Console.WriteLine($"Денег осталось: {Money}");
+            Console.WriteLine("Бойцы в очереди:");
+
+            if (QueueFighters.Count == 0)
+            {
+                Console.WriteLine("  Нет бойцов в команде");
+                return;
+            }
+
+            int position = 1;
+            foreach (var fighter in QueueFighters)
+            {
+                Console.WriteLine($"  {position}. {fighter.Name} | HP: {fighter.Health} | Урон: {fighter.Damage} | Защита: {fighter.Protection}");
+                position++;
+            }
+
+            Console.WriteLine();
         }
 
         public IUnit GetNextFighter()

@@ -29,6 +29,8 @@ namespace QueueFightGame
             StrongFighter strongFighter2 = new StrongFighter();
             Archer archer1 = new Archer("Red_Archer");
             Archer archer2 = new Archer("Blue_Archer");
+            Archer archer3 = new Archer("Blue_Archer");
+            Archer archer4 = new Archer("Red_Archer");
             Healer healer1 = new Healer("Red_Healer");
             Healer healer2 = new Healer("Blue_Healer");
 
@@ -36,13 +38,19 @@ namespace QueueFightGame
             redTeam.AddFighter(weakFighter1);
             redTeam.AddFighter(archer1);
             redTeam.AddFighter(healer1);
+            redTeam.AddFighter(archer4);
+
+            Console.WriteLine($"Money RedTeam {redTeam.Money}");
+
+            Console.WriteLine("---");
 
             blueTeam.AddFighter(weakFighter2);
             blueTeam.AddFighter(strongFighter1);
             blueTeam.AddFighter(archer2);
             blueTeam.AddFighter(healer2);
+            blueTeam.AddFighter(archer3);
 
-            Console.WriteLine($"Money RedTeam {redTeam.Money}");
+
             Console.WriteLine($"Money BlueTeam {blueTeam.Money}");
         }
 
@@ -66,6 +74,9 @@ namespace QueueFightGame
             {
                 Console.WriteLine("Нажмите любую клавишу, чтобы продолжить...");
                 Console.ReadKey();
+
+                redTeam.ShowTeam();
+                blueTeam.ShowTeam();
 
                 Console.WriteLine("\n--- Новый раунд ---");
                 Console.WriteLine($"Ходит команда: {(attackingTeam == redTeam ? "Красная" : "Синяя")}");
