@@ -10,140 +10,142 @@
 
 ## Архитектура сервиса
 
-#### Принятие заказа от курьера
+### Принятие заказа от курьера
 
 ```mermaid
 sequenceDiagram
-    participant Client as Клиент API
-    participant Service as Сервис заказов
-    participant TxManager as Транзакционный менеджер
-    participant Repo as Репозиторий заказов
-    participant DB as База данных
-    participant Cache as Кэш активных заказов
+    participant Client as 📱 API Клиент
+    participant Service as 🔄 Сервис заказов
+    participant TxManager as 🔒 Транзакции
+    participant DB as 💾 База данных
+    participant Cache as 📦 Кэш
 
-    Client->>Service: AcceptOrder(orderData)
-    Service->>TxManager: RunInTransaction
-    TxManager->>Repo: GetByID(orderID)
-    Repo->>DB: SELECT * FROM orders WHERE id=?
-    DB-->>Repo: order (или null)
-    Repo-->>TxManager: order (или null)
+    Note over Client,Cache: Шаг 1: Проверка существования заказа
     
-    alt Проверка существования
-        TxManager-->>Service: order exists
-        Service-->>Client: Ошибка: заказ уже существует
+    Client->>+Service: Запрос: Принять заказ
+    Service->>+TxManager: Начать транзакцию проверки
+    TxManager->>DB: Найти заказ по ID
+    DB-->>TxManager: Результат поиска
+    TxManager-->>-Service: Результат проверки
+    
+    alt Заказ уже существует
+        Service-->>Client: ❌ Ошибка: заказ уже существует
     else Заказ не существует
-        Service->>TxManager: RunInTransaction
-        TxManager->>Repo: Create(order)
-        Repo->>DB: INSERT INTO orders
-        DB-->>Repo: OK
-        Repo-->>TxManager: OK
-        TxManager-->>Service: OK
-        Service->>Cache: InvalidateActiveOrders(userID)
-        Service-->>Client: Успех: заказ создан
-    end
-```
-
-#### Выдача заказа клиенту
-
-```mermaid
-sequenceDiagram
-    participant Client as Клиент API
-    participant Service as Сервис заказов
-    participant TxManager as Транзакционный менеджер
-    participant Repo as Репозиторий заказов
-    participant DB as База данных
-    participant Cache as Кэш активных заказов
-
-    Client->>Service: DeliverOrdersToUser(userID, orderIDs)
-    
-    loop для каждого orderID
-        Service->>TxManager: RunInTransaction
-        TxManager->>Repo: GetByID(orderID)
-        Repo->>DB: SELECT * FROM orders WHERE id=?
-        DB-->>Repo: order
-        Repo-->>TxManager: order
+        Note over Client,Cache: Шаг 2: Создание нового заказа
         
-        alt Проверки валидности
-            TxManager-->>Service: Ошибка: заказ не найден/не принадлежит пользователю/не доступен
-            Service-->>Client: Ошибка выдачи заказа
-        else Заказ валиден
-            TxManager->>Repo: Update(order с статусом "DeliveredToUser")
-            Repo->>DB: UPDATE orders SET status="delivered_to_user", delivered_at=NOW()
-            DB-->>Repo: OK
-            Repo-->>TxManager: OK
-            TxManager-->>Service: OK
-        end
-    end
-    
-    Service->>Cache: InvalidateActiveOrders(userID)
-    Service-->>Client: Успех: заказы выданы
-```
-
-#### Приём возврата от клиента
-
-```mermaid
-sequenceDiagram
-    participant Client as Клиент API
-    participant Service as Сервис заказов
-    participant TxManager as Транзакционный менеджер
-    participant Repo as Репозиторий заказов
-    participant DB as База данных
-    participant Cache as Кэш активных заказов
-
-    Client->>Service: AcceptReturnsFromUser(userID, orderIDs)
-    
-    loop для каждого orderID
-        Service->>TxManager: RunInTransaction
-        TxManager->>Repo: GetByID(orderID)
-        Repo->>DB: SELECT * FROM orders WHERE id=?
-        DB-->>Repo: order
-        Repo-->>TxManager: order
+        Service->>+TxManager: Начать транзакцию создания
+        TxManager->>DB: Вставить новый заказ
+        DB-->>TxManager: Успех
+        TxManager-->>-Service: Транзакция выполнена
         
-        alt Проверки валидности
-            TxManager-->>Service: Ошибка: заказ не найден/не принадлежит пользователю/не выдан
-            Service-->>Client: Ошибка приёма возврата
-        else Заказ валиден для возврата
-            TxManager->>Repo: Update(order с статусом "ReturnedByUser")
-            Repo->>DB: UPDATE orders SET status="returned_by_user", returned_at=NOW()
-            DB-->>Repo: OK
-            Repo-->>TxManager: OK
-            TxManager-->>Service: OK
-        end
+        Service->>Cache: Сбросить кэш для пользователя
+        Service-->>-Client: ✅ Успех: заказ принят
     end
-    
-    Service->>Cache: InvalidateActiveOrders(userID)
-    Service-->>Client: Успех: возврат принят
 ```
 
-#### Возврат заказа курьеру
+### Выдача заказа клиенту
 
 ```mermaid
 sequenceDiagram
-    participant Client as Клиент API
-    participant Service as Сервис заказов
-    participant TxManager as Транзакционный менеджер
-    participant Repo as Репозиторий заказов
-    participant DB as База данных
-    participant Cache as Кэш активных заказов
+    participant Client as 📱 API Клиент
+    participant Service as 🔄 Сервис заказов
+    participant TxManager as 🔒 Транзакции
+    participant DB as 💾 База данных
+    participant Cache as 📦 Кэш
 
-    Client->>Service: ReturnOrderToCourier(orderID)
-    Service->>TxManager: RunInTransaction
-    TxManager->>Repo: GetByID(orderID)
-    Repo->>DB: SELECT * FROM orders WHERE id=?
-    DB-->>Repo: order
-    Repo-->>TxManager: order
+    Client->>+Service: Запрос: Выдать заказ клиенту
     
-    alt Проверки валидности
-        TxManager-->>Service: Ошибка: заказ не найден/не возвращён/срок хранения
-        Service-->>Client: Ошибка возврата курьеру
-    else Заказ валиден для возврата курьеру
-        TxManager->>Repo: Delete(orderID)
-        Repo->>DB: DELETE FROM orders WHERE id=?
-        DB-->>Repo: OK
-        Repo-->>TxManager: OK
-        TxManager-->>Service: OK, userID заказа
-        Service->>Cache: InvalidateActiveOrders(userID)
-        Service-->>Client: Успех: заказ возвращён курьеру
+    Note over Client,Cache: Для каждого заказа выполняется транзакция
+    
+    Service->>+TxManager: Начать транзакцию выдачи
+    
+    Note over TxManager,DB: Шаг 1: Получение и проверка заказа
+    TxManager->>DB: Найти заказ по ID
+    DB-->>TxManager: Данные заказа
+    
+    alt Ошибка проверки
+        Note right of TxManager: Проверки:- Заказ существует- Принадлежит пользователю- Доступен к выдаче- Не истек срок хранения
+        TxManager-->>Service: ❌ Заказ не прошел проверку
+        Service-->>Client: Ошибка: детали проблемы
+    else Заказ валиден
+        Note over TxManager,DB: Шаг 2: Обновление статуса заказа
+        
+        TxManager->>DB: Обновить статус на "Выдан клиенту"
+        DB-->>TxManager: Успех
+        TxManager-->>-Service: ✅ Транзакция выполнена
+        
+        Service->>Cache: Сбросить кэш для пользователя
+        Service-->>-Client: Успех: заказ выдан клиенту
+    end
+```
+
+### Приём возврата от клиента
+
+```mermaid
+sequenceDiagram
+    participant Client as 📱 API Клиент
+    participant Service as 🔄 Сервис заказов
+    participant TxManager as 🔒 Транзакции
+    participant DB as 💾 База данных
+    participant Cache as 📦 Кэш
+
+    Client->>+Service: Запрос: Принять возврат
+    
+    Note over Client,Cache: Для каждого заказа выполняется транзакция
+    
+    Service->>+TxManager: Начать транзакцию возврата
+    
+    Note over TxManager,DB: Шаг 1: Проверка возможности возврата
+    TxManager->>DB: Найти заказ по ID
+    DB-->>TxManager: Данные заказа
+    
+    alt Невозможно принять возврат
+        Note right of TxManager: Проверки:- Заказ существует- Принадлежит пользователю- Был выдан клиенту- Не истек срок возврата (48ч)
+        TxManager-->>Service: ❌ Возврат невозможен
+        Service-->>Client: Ошибка: причина отказа
+    else Возврат возможен
+        Note over TxManager,DB: Шаг 2: Регистрация возврата
+        
+        TxManager->>DB: Обновить статус на "Возвращен клиентом"
+        Note right of TxManager: Установить:- Время возврата- Обновить статус
+        DB-->>TxManager: Успех
+        TxManager-->>-Service: ✅ Транзакция выполнена
+        
+        Service->>Cache: Сбросить кэш для пользователя
+        Service-->>-Client: Успех: возврат принят
+    end
+```
+
+### Возврат заказа курьеру
+
+```mermaid
+sequenceDiagram
+    participant Client as 📱 API Клиент
+    participant Service as 🔄 Сервис заказов
+    participant TxManager as 🔒 Транзакции
+    participant DB as 💾 База данных
+    participant Cache as 📦 Кэш
+
+    Client->>+Service: Запрос: Вернуть заказ курьеру
+    Service->>+TxManager: Начать транзакцию
+    
+    Note over TxManager,DB: Шаг 1: Проверка состояния заказа
+    TxManager->>DB: Найти заказ по ID
+    DB-->>TxManager: Данные заказа
+    
+    alt Заказ нельзя вернуть курьеру
+        Note right of TxManager: Проверки:- Заказ существует- Статус "Возвращен клиентом"- Прошло минимум 2 недели хранения
+        TxManager-->>Service: ❌ Нельзя вернуть курьеру
+        Service-->>Client: Ошибка: причина отказа
+    else Заказ готов к возврату курьеру
+        Note over TxManager,DB: Шаг 2: Удаление заказа из системы
+        
+        TxManager->>DB: Удалить заказ из БД
+        DB-->>TxManager: Успех
+        TxManager-->>-Service: ✅ Транзакция выполнена + ID пользователя
+        
+        Service->>Cache: Сбросить кэш для пользователя
+        Service-->>-Client: Успех: заказ возвращен курьеру
     end
 ```
 
