@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using QueueFightersGameWinForm;
 
 namespace QueueFightGame
 {
-    //В этом классе можно реализовать Синглтон или лайзи, может быть только один Manager
     internal class Game
     {
         private GameManager Manager;
+        private MainMenuForm MainMenuForm;
 
         public Game()
         {
@@ -18,14 +19,14 @@ namespace QueueFightGame
 
         public void Initialize()
         {
-            throw new NotImplementedException("Метод Initialize() не реализован");
+            // Создание и отображение главного меню
+            MainMenuForm = new MainMenuForm();
         }
 
         public void Play()
         {
-            throw new NotImplementedException("Метод Play() не реализован");
+            // Запуск формы главного меню
+            MainMenuForm.ShowDialog();
         }
-
-
     }
 }

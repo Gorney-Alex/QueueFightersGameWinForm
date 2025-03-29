@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace QueueFightGame
 {
-    internal interface ISpecialActionArcher
+      public interface ISpecialActionArcher
     {
         int Range { get; }
         int Power { get; }
-
         void DoSpecialAttack(IUnit target, Team ownTeam);
     }
 }

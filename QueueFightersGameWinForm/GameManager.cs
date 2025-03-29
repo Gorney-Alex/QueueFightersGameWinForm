@@ -6,112 +6,130 @@ using System.Threading.Tasks;
 
 namespace QueueFightGame
 {
-    internal class GameManager
+
+    public class UnitFactory
     {
+        public IUnit CreateUnit(string type, string teamName = "")
+        {
+            switch (type.ToLower())
+            {
+                case "weakfighter":
+                    return new WeakFighter();
+                case "strongfighter":
+                    return new StrongFighter();
+                case "archer":
+                    return new Archer($"{teamName}_Archer");
+                case "healer":
+                    return new Healer($"{teamName}_Healer");
+                case "mage":
+                    return new Mage($"{teamName}_Mage");
+                default:
+                    throw new ArgumentException($"Неизвестный тип бойца: {type}");
+            }
+        }
+    }
 
-        private Team redTeam;
-        private Team blueTeam;
+    // Явно устанавливаем public для класса GameManager
+    public class GameManager
+    {
+        // Публичный доступ к командам для использования в UI
+        public Team RedTeam { get; private set; }
+        public Team BlueTeam { get; private set; }
 
+        // Конструктор для ручного создания команд (используется при покупке юнитов)
+        public GameManager(Team redTeam, Team blueTeam)
+        {
+            RedTeam = redTeam;
+            BlueTeam = blueTeam;
+        }
+
+        // Конструктор для автоматического создания команд (для режима "Рандом")
         public GameManager()
         {
-            redTeam = new Team("Red", 100);
-            blueTeam = new Team("Blue", 100);
-
-            CreatFighters();
-            Battle();
+            RedTeam = new Team("Red", 100);
+            BlueTeam = new Team("Blue", 100);
+            CreateRandomTeams();
         }
 
-        public void CreatFighters()
+        // Метод для случайного создания команд
+        private void CreateRandomTeams()
         {
-            WeakFighter weakFighter1 = new WeakFighter();
-            WeakFighter weakFighter2 = new WeakFighter();
-            StrongFighter strongFighter1 = new StrongFighter();
-            StrongFighter strongFighter2 = new StrongFighter();
-            Archer archer1 = new Archer("Red_Archer");
-            Archer archer2 = new Archer("Blue_Archer");
-            Archer archer3 = new Archer("Blue_Archer");
-            Archer archer4 = new Archer("Red_Archer");
-            Healer healer1 = new Healer("Red_Healer");
-            Healer healer2 = new Healer("Blue_Healer");
+            // Типы доступных бойцов
+            Type[] fighterTypes = new Type[]
+            {
+                typeof(WeakFighter),
+                typeof(StrongFighter),
+                typeof(Archer),
+                typeof(Healer),
+                typeof(Mage)
+            };
 
-            redTeam.AddFighter(strongFighter2);
-            redTeam.AddFighter(weakFighter1);
-            redTeam.AddFighter(archer1);
-            redTeam.AddFighter(healer1);
-            redTeam.AddFighter(archer4);
+            // Стоимость каждого типа бойца
+            Dictionary<Type, float> costs = new Dictionary<Type, float>
+            {
+                { typeof(WeakFighter), 15 },
+                { typeof(StrongFighter), 30 },
+                { typeof(Archer), 25 },
+                { typeof(Healer), 20 },
+                { typeof(Mage), 35 },
+            };
 
-            Console.WriteLine($"Money RedTeam {redTeam.Money}");
+            // Случайное создание бойцов для красной команды
+            CreateRandomFightersForTeam(RedTeam, fighterTypes, costs);
 
-            Console.WriteLine("---");
-
-            blueTeam.AddFighter(weakFighter2);
-            blueTeam.AddFighter(strongFighter1);
-            blueTeam.AddFighter(archer2);
-            blueTeam.AddFighter(healer2);
-            blueTeam.AddFighter(archer3);
-
-
-            Console.WriteLine($"Money BlueTeam {blueTeam.Money}");
+            // Случайное создание бойцов для синей команды
+            CreateRandomFightersForTeam(BlueTeam, fighterTypes, costs);
         }
 
-        private Team RandomStartAttack()
+        // Создание случайных бойцов для команды
+        private void CreateRandomFightersForTeam(Team team, Type[] fighterTypes, Dictionary<Type, float> costs)
+        {
+            Random random = new Random();
+
+            // Продолжаем добавлять бойцов, пока у команды есть деньги для самого дешёвого бойца
+            while (team.Money >= costs.Values.Min())
+            {
+                // Выбираем случайный тип бойца
+                Type randomType = fighterTypes[random.Next(fighterTypes.Length)];
+
+                // Проверяем, достаточно ли денег для этого типа
+                if (team.Money >= costs[randomType])
+                {
+                    // Создаем бойца и добавляем в команду
+                    IUnit fighter = CreateFighter(randomType, team.TeamName);
+                    team.AddFighter(fighter);
+                }
+                else
+                {
+                    // Пробуем выбрать другой тип бойца в следующей итерации
+                    continue;
+                }
+            }
+        }
+
+        // Вспомогательный метод для создания бойца по типу
+        private IUnit CreateFighter(Type fighterType, string teamName)
+        {
+            if (fighterType == typeof(WeakFighter))
+                return new WeakFighter();
+            else if (fighterType == typeof(StrongFighter))
+                return new StrongFighter();
+            else if (fighterType == typeof(Archer))
+                return new Archer($"{teamName}_Archer");
+            else if (fighterType == typeof(Healer))
+                return new Healer($"{teamName}_Healer");
+            else if (fighterType == typeof(Mage))
+                return new Mage($"{teamName}_Mage");
+            else
+                throw new ArgumentException($"Неизвестный тип бойца: {fighterType.Name}");
+        }
+
+        // Метод для определения случайной атакующей команды
+        public Team RandomStartAttack()
         {
             Random randomStartAttack = new Random();
             bool redTeamStarts = randomStartAttack.Next(2) == 0;
-            if (redTeamStarts)
-            {
-                return redTeam;
-            }
-            return blueTeam;
+            return redTeamStarts ? RedTeam : BlueTeam;
         }
-
-        public void Battle()
-        {
-            Team attackingTeam = RandomStartAttack();
-            Team defendingTeam = (attackingTeam == redTeam) ? blueTeam : redTeam;
-
-            while (redTeam.HasFighters() && blueTeam.HasFighters())
-            {
-                Console.WriteLine("Нажмите любую клавишу, чтобы продолжить...");
-                Console.ReadKey();
-
-                redTeam.ShowTeam();
-                blueTeam.ShowTeam();
-
-                Console.WriteLine("\n--- Новый раунд ---");
-                Console.WriteLine($"Ходит команда: {(attackingTeam == redTeam ? "Красная" : "Синяя")}");
-
-                IUnit attacker = attackingTeam.GetNextFighter();
-                IUnit defender = defendingTeam.GetNextFighter();
-
-                Console.WriteLine($"\n{attacker.Name} | HP: {attacker.Health} атакует {defender.Name}| HP: {defender.Health}");
-                attacker.Attack(defender);
-
-                foreach (IUnit unit in attackingTeam.QueueFighters.Skip(1))
-                {
-                    if (unit is Archer archer)
-                    {
-                        archer.DoSpecialAttack(defender, attacker.Team);
-                    }
-                    if (unit is Healer healer)
-                    {
-                        healer.DoHeal(attacker.Team);
-                    }
-                }
-
-                if (defender.Health <= 0)
-                {
-                    Console.WriteLine($"{defender.Name} пал в бою!");
-                    defendingTeam.RemoveFighter();
-                }
-
-                (attackingTeam, defendingTeam) = (defendingTeam, attackingTeam);
-            }
-
-            Console.WriteLine(redTeam.HasFighters() ? "Красная команда победила!" : "Синяя команда победила!");
-        }
-
-
-
     }
 }

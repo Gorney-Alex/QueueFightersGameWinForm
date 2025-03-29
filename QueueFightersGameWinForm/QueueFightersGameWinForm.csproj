@@ -47,6 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseUnit.cs" />
+    <Compile Include="BattleForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Fighters.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -56,13 +59,22 @@
     </Compile>
     <Compile Include="Game.cs" />
     <Compile Include="GameManager.cs" />
+    <Compile Include="GameModeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ICanBeHealed.cs" />
     <Compile Include="ISpecialActionArcher.cs" />
     <Compile Include="ISpecialActionHealer.cs" />
     <Compile Include="IUnit.cs" />
+    <Compile Include="MainMenuForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Team.cs" />
+    <Compile Include="TeamBuyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -74,6 +86,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -87,6 +100,33 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\archier.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\лёгкий боец.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\hard_fihter.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\heal.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\light_weight.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mag.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\knopkaplay.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\zastavka.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\фон битвы.PNG" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

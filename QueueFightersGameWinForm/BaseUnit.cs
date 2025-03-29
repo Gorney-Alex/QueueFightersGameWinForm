@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace QueueFightGame
 {
-    internal abstract class BaseUnit : IUnit
+    // Меняем модификатор доступа с internal на public
+    public abstract class BaseUnit : IUnit
     {
         public string Name { get; private set; }
         public float Health { get; set; }
@@ -27,11 +28,8 @@ namespace QueueFightGame
 
         public void Attack(IUnit target)
         {
-
             float newDamage = Damage * target.Protection;
-
             target.Health -= newDamage;
-
             Console.WriteLine($"Наносит урон {newDamage} {target.Name}");
         }
     }

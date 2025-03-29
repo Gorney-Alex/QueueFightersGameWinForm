@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace QueueFightGame
 {
-    internal interface IUnit
+    // Меняем модификатор доступа с internal на public
+    public interface IUnit
     {
         string Name { get; }
         float Health { get; set; }
@@ -14,7 +15,6 @@ namespace QueueFightGame
         float Damage { get; }
         float Cost { get; set; }
         Team Team { get; set; }
-
         void Attack(IUnit target);
     }
 }

@@ -8,3 +8,13 @@ C:\Users\Home\source\repos\QueueFightersGameWinForm\QueueFightersGameWinForm\obj
 C:\Users\Home\source\repos\QueueFightersGameWinForm\QueueFightersGameWinForm\obj\Debug\QueueFightersGameWinForm.csproj.CoreCompileInputs.cache
 C:\Users\Home\source\repos\QueueFightersGameWinForm\QueueFightersGameWinForm\obj\Debug\QueueFightersGameWinForm.exe
 C:\Users\Home\source\repos\QueueFightersGameWinForm\QueueFightersGameWinForm\obj\Debug\QueueFightersGameWinForm.pdb
+C:\Users\Пользователь\coding\С#\QueueFightersGameWinForm\QueueFightersGameWinForm\bin\Debug\QueueFightersGameWinForm.exe.config
+C:\Users\Пользователь\coding\С#\QueueFightersGameWinForm\QueueFightersGameWinForm\bin\Debug\QueueFightersGameWinForm.exe
+C:\Users\Пользователь\coding\С#\QueueFightersGameWinForm\QueueFightersGameWinForm\bin\Debug\QueueFightersGameWinForm.pdb
+C:\Users\Пользователь\coding\С#\QueueFightersGameWinForm\QueueFightersGameWinForm\obj\Debug\QueueFightersGameWinForm.csproj.AssemblyReference.cache
+C:\Users\Пользователь\coding\С#\QueueFightersGameWinForm\QueueFightersGameWinForm\obj\Debug\QueueFightersGameWinForm.Form1.resources
+C:\Users\Пользователь\coding\С#\QueueFightersGameWinForm\QueueFightersGameWinForm\obj\Debug\QueueFightersGameWinForm.Properties.Resources.resources
+C:\Users\Пользователь\coding\С#\QueueFightersGameWinForm\QueueFightersGameWinForm\obj\Debug\QueueFightersGameWinForm.csproj.GenerateResource.cache
+C:\Users\Пользователь\coding\С#\QueueFightersGameWinForm\QueueFightersGameWinForm\obj\Debug\QueueFightersGameWinForm.csproj.CoreCompileInputs.cache
+C:\Users\Пользователь\coding\С#\QueueFightersGameWinForm\QueueFightersGameWinForm\obj\Debug\QueueFightersGameWinForm.exe
+C:\Users\Пользователь\coding\С#\QueueFightersGameWinForm\QueueFightersGameWinForm\obj\Debug\QueueFightersGameWinForm.pdb

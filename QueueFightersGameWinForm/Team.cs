@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace QueueFightGame
 {
-    internal class Team
+    // Меняем модификатор доступа с internal на public
+    public class Team
     {
         public Queue<IUnit> QueueFighters { get; private set; }
         public string TeamName { get; private set; }
-        public float Money { get; private set; }
+        public float Money { get; private set; } // Можно также изменить на public float Money { get; set; }, если хотите упростить работу с деньгами
 
         public Team(string teamName, float money)
         {
@@ -24,7 +25,7 @@ namespace QueueFightGame
             if (this.Money >= fighter.Cost)
             {
                 fighter.Team = this;
-                this.Money -= fighter.Cost;
+                this.Money -= fighter.Cost; // Это будет работать только если Money имеет сеттер
                 QueueFighters.Enqueue(fighter);
                 Console.WriteLine($"Add {fighter.Name} to {this.TeamName}");
             }
@@ -44,20 +45,17 @@ namespace QueueFightGame
             Console.WriteLine($"\n--- Команда: {TeamName} ---");
             Console.WriteLine($"Денег осталось: {Money}");
             Console.WriteLine("Бойцы в очереди:");
-
             if (QueueFighters.Count == 0)
             {
                 Console.WriteLine("  Нет бойцов в команде");
                 return;
             }
-
             int position = 1;
             foreach (var fighter in QueueFighters)
             {
                 Console.WriteLine($"  {position}. {fighter.Name} | HP: {fighter.Health} | Урон: {fighter.Damage} | Защита: {fighter.Protection}");
                 position++;
             }
-
             Console.WriteLine();
         }
 
@@ -79,6 +77,5 @@ namespace QueueFightGame
                 Console.WriteLine($"{removedFighter.Name} покинул команду {TeamName}.");
             }
         }
-
     }
 }

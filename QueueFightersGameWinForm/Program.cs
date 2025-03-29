@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using QueueFightGame;
 
 namespace QueueFightersGameWinForm
 {
@@ -13,7 +14,9 @@ namespace QueueFightersGameWinForm
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
+            // Запускаем главное меню вместо Form1
+            Application.Run(new MainMenuForm());
         }
     }
 }
